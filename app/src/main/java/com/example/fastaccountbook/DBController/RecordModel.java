@@ -4,17 +4,17 @@ public class RecordModel {
     public int id;
     public String date;
     public String time;
-    public String type;
+    public int typeId;
     public String description;
     public double amount;//正收入，负支出
 
     public RecordModel(){}
 
-    public RecordModel(int id, String date,String time,String type,String description,double amount){
+    public RecordModel(int id, String date,String time,int typeId,String description,double amount){
         this.id=id;
         this.date=date;
         this.time=time;
-        this.type=type;
+        this.typeId=typeId;
         this.description=description;
         this.amount=amount;
     }
@@ -41,6 +41,14 @@ public class RecordModel {
 
     public void setTime(String time) {
         this.time = time;
+    }
+
+    public int getTypeId() {
+        return typeId;
+    }
+
+    public void setTypeId(int typeId) {
+        this.typeId = typeId;
     }
 
     public double getAmount() {
