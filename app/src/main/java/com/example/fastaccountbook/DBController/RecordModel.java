@@ -1,12 +1,12 @@
 package com.example.fastaccountbook.DBController;
 
 public class RecordModel {
-    public int id;
-    public String date;
-    public String time;
-    public int typeId;
-    public String description;
-    public double amount;//正收入，负支出
+    private int id;
+    private String date;
+    private String time;
+    private int typeId;
+    private String description;
+    private double amount;//正收入，负支出
 
     public RecordModel(){}
 

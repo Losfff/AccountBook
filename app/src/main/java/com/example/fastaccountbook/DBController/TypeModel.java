@@ -1,8 +1,8 @@
 package com.example.fastaccountbook.DBController;
 
 public class TypeModel {
-    public int typeId;
-    public String typeName;
+    private int typeId;
+    private String typeName;
 
     public TypeModel(){}
 

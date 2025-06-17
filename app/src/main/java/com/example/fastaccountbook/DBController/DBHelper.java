@@ -18,7 +18,7 @@ public class DBHelper extends SQLiteOpenHelper {
 
     // TypeModel table
     private static final String TABLE_TYPE = "TypeModel";
-    private static final String COLUMN_TYPE_ID = "typeId"; // 修改为 String 类型
+    private static final String COLUMN_TYPE_ID = "typeId";
     private static final String COLUMN_TYPE_NAME = "typeName";
 
     // RecordModel table
@@ -26,7 +26,7 @@ public class DBHelper extends SQLiteOpenHelper {
     private static final String COLUMN_RECORD_ID = "id";
     private static final String COLUMN_RECORD_DATE = "date";
     private static final String COLUMN_RECORD_TIME = "time";
-    private static final String COLUMN_RECORD_TYPE_ID = "typeId"; // 修改为 String 类型
+    private static final String COLUMN_RECORD_TYPE_ID = "typeId";
     private static final String COLUMN_RECORD_DESCRIPTION = "description";
     private static final String COLUMN_RECORD_AMOUNT = "amount";
 
@@ -77,11 +77,11 @@ public class DBHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getWritableDatabase();
         try {
             ContentValues values = new ContentValues();
-            values.put(COLUMN_RECORD_DATE, recordModel.date);
-            values.put(COLUMN_RECORD_TIME, recordModel.time);
-            values.put(COLUMN_RECORD_TYPE_ID, recordModel.typeId);
-            values.put(COLUMN_RECORD_DESCRIPTION, recordModel.description);
-            values.put(COLUMN_RECORD_AMOUNT, recordModel.amount);
+            values.put(COLUMN_RECORD_DATE, recordModel.getDate());
+            values.put(COLUMN_RECORD_TIME, recordModel.getTime());
+            values.put(COLUMN_RECORD_TYPE_ID, recordModel.getTypeId());
+            values.put(COLUMN_RECORD_DESCRIPTION, recordModel.getDescription());
+            values.put(COLUMN_RECORD_AMOUNT, recordModel.getAmount());
             long result = db.insert(TABLE_RECORD, null, values);
             return result != -1;
         } catch (Exception e) {
@@ -119,12 +119,12 @@ public class DBHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getWritableDatabase();
         try {
             ContentValues values = new ContentValues();
-            values.put(COLUMN_RECORD_DATE, recordModel.date);
-            values.put(COLUMN_RECORD_TIME, recordModel.time);
-            values.put(COLUMN_RECORD_TYPE_ID, recordModel.typeId);
-            values.put(COLUMN_RECORD_DESCRIPTION, recordModel.description);
-            values.put(COLUMN_RECORD_AMOUNT, recordModel.amount);
-            int result = db.update(TABLE_RECORD, values, COLUMN_RECORD_ID + "=?", new String[]{String.valueOf(recordModel.id)});
+            values.put(COLUMN_RECORD_DATE, recordModel.getDate());
+            values.put(COLUMN_RECORD_TIME, recordModel.getTime());
+            values.put(COLUMN_RECORD_TYPE_ID, recordModel.getTypeId());
+            values.put(COLUMN_RECORD_DESCRIPTION, recordModel.getDescription());
+            values.put(COLUMN_RECORD_AMOUNT, recordModel.getAmount());
+            int result = db.update(TABLE_RECORD, values, COLUMN_RECORD_ID + "=?", new String[]{String.valueOf(recordModel.getId())});
             return result > 0;
         } catch (Exception e) {
             Log.e("DBHelper", "Error updating record", e);
@@ -149,12 +149,12 @@ public class DBHelper extends SQLiteOpenHelper {
             if (cursor != null && cursor.moveToFirst()) {
                 do {
                     RecordModel record = new RecordModel();
-                    record.id = cursor.getInt(cursor.getColumnIndex(COLUMN_RECORD_ID));
-                    record.date = cursor.getString(cursor.getColumnIndex(COLUMN_RECORD_DATE));
-                    record.time = cursor.getString(cursor.getColumnIndex(COLUMN_RECORD_TIME));
-                    record.typeId = cursor.getInt(cursor.getColumnIndex(COLUMN_RECORD_TYPE_ID)); // 修正为 getInt
-                    record.description = cursor.getString(cursor.getColumnIndex(COLUMN_RECORD_DESCRIPTION));
-                    record.amount = cursor.getDouble(cursor.getColumnIndex(COLUMN_RECORD_AMOUNT));
+                    record.setId(cursor.getInt(cursor.getColumnIndex(COLUMN_RECORD_ID)));
+                    record.setDate(cursor.getString(cursor.getColumnIndex(COLUMN_RECORD_DATE)));
+                    record.setTime(cursor.getString(cursor.getColumnIndex(COLUMN_RECORD_TIME)));
+                    record.setTypeId(cursor.getInt(cursor.getColumnIndex(COLUMN_RECORD_TYPE_ID)));
+                    record.setDescription(cursor.getString(cursor.getColumnIndex(COLUMN_RECORD_DESCRIPTION)));
+                    record.setAmount(cursor.getDouble(cursor.getColumnIndex(COLUMN_RECORD_AMOUNT)));
                     recordList.add(record);
                 } while (cursor.moveToNext());
             }
@@ -178,7 +178,7 @@ public class DBHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getWritableDatabase();
         try {
             ContentValues values = new ContentValues();
-            values.put(COLUMN_TYPE_NAME, typeModel.typeName);
+            values.put(COLUMN_TYPE_NAME, typeModel.getTypeName());
             long result = db.insert(TABLE_TYPE, null, values);
             return result != -1;
         } catch (Exception e) {
@@ -216,8 +216,8 @@ public class DBHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getWritableDatabase();
         try {
             ContentValues values = new ContentValues();
-            values.put(COLUMN_TYPE_NAME, typeModel.typeName);
-            int result = db.update(TABLE_TYPE, values, COLUMN_TYPE_ID + "=?", new String[]{String.valueOf(typeModel.typeId)});
+            values.put(COLUMN_TYPE_NAME, typeModel.getTypeName());
+            int result = db.update(TABLE_TYPE, values, COLUMN_TYPE_ID + "=?", new String[]{String.valueOf(typeModel.getTypeId())});
             return result > 0;
         } catch (Exception e) {
             Log.e("DBHelper", "Error updating type", e);
@@ -241,8 +241,8 @@ public class DBHelper extends SQLiteOpenHelper {
             if (cursor != null && cursor.moveToFirst()) {
                 do {
                     TypeModel type = new TypeModel();
-                    type.typeId = cursor.getInt(cursor.getColumnIndex(COLUMN_TYPE_ID));
-                    type.typeName = cursor.getString(cursor.getColumnIndex(COLUMN_TYPE_NAME));
+                    type.setTypeId(cursor.getInt(cursor.getColumnIndex(COLUMN_TYPE_ID)));
+                    type.setTypeName(cursor.getString(cursor.getColumnIndex(COLUMN_TYPE_NAME)));
                     typeList.add(type);
                 } while (cursor.moveToNext());
             }
