@@ -1,19 +1,35 @@
 package com.example.fastaccountbook.ui.dashboard;
 
+import android.app.Application;
+import android.content.Context;
+
+import androidx.annotation.NonNull;
+import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
-import androidx.lifecycle.ViewModel;
 
-public class DashboardViewModel extends ViewModel {
+import com.example.fastaccountbook.DBController.DBHelper;
+import com.example.fastaccountbook.DBController.RecordModel;
 
-    private final MutableLiveData<String> mText;
+import java.util.List;
 
-    public DashboardViewModel() {
-        mText = new MutableLiveData<>();
-        mText.setValue("This is dashboard fragment");
+public class DashboardViewModel extends AndroidViewModel {
+
+    private final MutableLiveData<List<RecordModel>> records = new MutableLiveData<>();
+
+    public DashboardViewModel(@NonNull Application app) {
+        super(app);
     }
 
-    public LiveData<String> getText() {
-        return mText;
+    /** 外部调用来加载数据库数据 */
+    public void loadRecords() {
+        Context ctx = getApplication().getApplicationContext();
+        DBHelper db = new DBHelper(ctx);
+        List<RecordModel> list = db.getRecords();
+        records.setValue(list);
+    }
+
+    public LiveData<List<RecordModel>> getRecords() {
+        return records;
     }
 }
