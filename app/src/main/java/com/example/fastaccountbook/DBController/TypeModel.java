@@ -1,8 +1,8 @@
 package com.example.fastaccountbook.DBController;
 
 public class TypeModel {
-    public int typeId;
-    public String typeName;
+    private int typeId;
+    private String typeName;
 
     public TypeModel(){}
 
@@ -25,5 +25,10 @@ public class TypeModel {
 
     public void setTypeName(String typeName) {
         this.typeName = typeName;
+    }
+
+    @Override
+    public String toString() {
+        return this.typeName; // 直接返回类型名称
     }
 }

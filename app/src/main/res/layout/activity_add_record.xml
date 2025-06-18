@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <!-- 返回按钮 -->
+    <ImageButton
+        android:id="@+id/backButton"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:src="@drawable/ic_back"
+        android:scaleType="fitCenter"
+        android:contentDescription="返回"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <!-- 记账类型选择（每行四个，可滑动） -->
+    <HorizontalScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="16dp"
+        android:scrollbars="none">
+        <GridLayout
+            android:id="@+id/type_grid"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:columnCount="4"
+            android:rowCount="2"
+            android:orientation="horizontal" />
+    </HorizontalScrollView>
+
+    <!-- 金额输入 -->
+    <EditText
+        android:id="@+id/et_amount"
+        android:hint="请输入金额"
+        android:inputType="numberDecimal"
+        android:textSize="24sp"
+        android:layout_marginTop="20dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <!-- 支出 / 收入切换 -->
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:gravity="center" >
+
+        <Button
+            android:id="@+id/expenseButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="支出"
+            android:background="@drawable/selectable_button"
+            android:textColor="@android:color/black"
+            android:textSize="16sp"
+            app:backgroundTint="@null"/>
+
+        <Button
+            android:id="@+id/incomeButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginStart="12dp"
+            android:text="收入"
+            android:background="@drawable/selectable_button"
+            android:textColor="@android:color/black"
+            android:textSize="16sp"
+            app:backgroundTint="@null"/>
+    </LinearLayout>
+
+    <!-- 备注输入框 -->
+    <EditText
+        android:id="@+id/et_description"
+        android:hint="备注"
+        android:layout_marginTop="16dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <!-- 提交按钮 -->
+    <Button
+        android:id="@+id/btn_submit"
+        android:text="记一笔"
+        android:layout_marginTop="32dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:backgroundTint="#282828"/>
+</LinearLayout>
