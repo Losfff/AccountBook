@@ -256,4 +256,41 @@ public class DBHelper extends SQLiteOpenHelper {
         }
         return typeList;
     }
+
+
+    //qhqq
+    /**
+     * 获取指定类型ID的所有账单
+     */
+    @SuppressLint("Range")
+    public List<RecordModel> getRecordsByTypeId(int typeId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        List<RecordModel> recordList = new ArrayList<>();
+        try {
+            Cursor cursor = db.query(TABLE_RECORD,
+                    new String[]{COLUMN_RECORD_ID, COLUMN_RECORD_DATE, COLUMN_RECORD_TIME, COLUMN_RECORD_TYPE_ID, COLUMN_RECORD_DESCRIPTION, COLUMN_RECORD_AMOUNT},
+                    COLUMN_RECORD_TYPE_ID + "=?",
+                    new String[]{String.valueOf(typeId)},
+                    null, null, null);
+            if (cursor != null && cursor.moveToFirst()) {
+                do {
+                    RecordModel record = new RecordModel();
+                    record.setId(cursor.getInt(cursor.getColumnIndex(COLUMN_RECORD_ID)));
+                    record.setDate(cursor.getString(cursor.getColumnIndex(COLUMN_RECORD_DATE)));
+                    record.setTime(cursor.getString(cursor.getColumnIndex(COLUMN_RECORD_TIME)));
+                    record.setTypeId(cursor.getInt(cursor.getColumnIndex(COLUMN_RECORD_TYPE_ID)));
+                    record.setDescription(cursor.getString(cursor.getColumnIndex(COLUMN_RECORD_DESCRIPTION)));
+                    record.setAmount(cursor.getDouble(cursor.getColumnIndex(COLUMN_RECORD_AMOUNT)));
+                    recordList.add(record);
+                } while (cursor.moveToNext());
+            }
+            if (cursor != null) cursor.close();
+        } catch (Exception e) {
+            Log.e("DBHelper", "Error getRecordsByTypeId", e);
+        } finally {
+            db.close();
+        }
+        return recordList;
+    }
+    //qhqq
 }

@@ -29,6 +29,7 @@
             </intent-filter>
         </activity>
         <activity android:name=".ui.home.EditRecordActivity" />
+        <activity android:name=".ui.dashboard.CategoryDetailActivity" />
     </application>
 
 </manifest>

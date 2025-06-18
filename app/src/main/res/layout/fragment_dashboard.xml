@@ -1,47 +1,74 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
+    android:fillViewport="true"
     android:padding="16dp">
 
-    <!-- 饼图容器 -->
-    <FrameLayout
-        android:id="@+id/pie_chart_container"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:padding="16dp" />
-
-    <!-- 类别列表容器 -->
-    <FrameLayout
-        android:id="@+id/category_list_container"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="16dp" />
+        android:orientation="vertical">
 
+        <!-- 本月筛选按钮 -->
+        <TextView
+            android:id="@+id/tv_filter_month"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="仅查看本月 ▼"
+            android:textColor="@android:color/holo_blue_dark"
+            android:textSize="14sp"
+            android:layout_gravity="end"
+            android:padding="4dp"
+            android:layout_marginBottom="4dp"/>
 
-    <!-- 分割线 -->
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="@android:color/darker_gray" />
+        <!-- 饼状图 -->
+        <com.github.mikephil.charting.charts.PieChart
+            android:id="@+id/pie_chart"
+            android:layout_width="match_parent"
+            android:layout_height="250dp"
+            android:layout_marginBottom="16dp" />
 
-    <!-- 支出统计标题 -->
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="支出统计"
-        android:textSize="18sp"
-        android:textColor="@android:color/black"
-        android:layout_gravity="center_horizontal"
-        android:padding="8dp"/>
+        <!-- 支出分类横条列表 -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/category_bar_list"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:nestedScrollingEnabled="false" />
 
-    <!-- 柱状图容器 -->
-    <FrameLayout
-        android:id="@+id/bar_chart_container"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:padding="16dp" />
-</LinearLayout>
+        <!-- 展开更多按钮 -->
+        <TextView
+            android:id="@+id/tv_toggle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="展开更多 ⌄"
+            android:textColor="@android:color/darker_gray"
+            android:textSize="14sp"
+            android:layout_gravity="center_horizontal"
+            android:padding="8dp"
+            android:layout_marginBottom="16dp" />
+
+        <!-- 分割线 -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@android:color/darker_gray" />
+
+        <!-- 支出统计标题 -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="一月内支出统计"
+            android:textSize="15sp"
+            android:textColor="@android:color/black"
+            android:layout_gravity="center_horizontal"
+            android:padding="5dp"/>
+
+        <!-- 柱状图 -->
+        <com.github.mikephil.charting.charts.BarChart
+            android:id="@+id/bar_chart"
+            android:layout_width="match_parent"
+            android:layout_height="250dp"
+            android:layout_marginTop="16dp" />
+    </LinearLayout>
+</androidx.core.widget.NestedScrollView>

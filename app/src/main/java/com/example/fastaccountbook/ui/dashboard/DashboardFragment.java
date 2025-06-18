@@ -1,20 +1,25 @@
 package com.example.fastaccountbook.ui.dashboard;
 
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.FrameLayout;
+import android.widget.TextView;
+
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
+import com.example.fastaccountbook.DBController.DBHelper;
 import com.example.fastaccountbook.DBController.RecordModel;
+import com.example.fastaccountbook.DBController.TypeModel;
+
 import com.example.fastaccountbook.R;
-import com.example.fastaccountbook.ui.dashboard.CustomMarkerView;
 import com.github.mikephil.charting.charts.BarChart;
 import com.github.mikephil.charting.charts.PieChart;
-import com.github.mikephil.charting.components.Description;
 import com.github.mikephil.charting.components.Legend;
 import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.components.YAxis;
@@ -32,32 +37,56 @@ import java.util.*;
 
 public class DashboardFragment extends Fragment {
 
-    private FrameLayout pieChartContainer;
-    private FrameLayout barChartContainer;
-    private DashboardViewModel viewModel;
-
-    private List<RecordModel> recordList = new ArrayList<>();
+    private PieChart pieChart; // 饼图控件
+    private BarChart barChart; // 柱状图控件
+    private RecyclerView categoryList; // 分类列表控件
+    private TextView tvToggle, tvFilterMonth; // 切换显示和筛选按钮
+    private List<RecordModel> recordList = new ArrayList<>(); // 记录列表
+    private CategoryBarAdapter adapter; // 分类条形图适配器
+    private boolean filterThisMonth = false; // 是否筛选本月记录
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
-        View root = inflater.inflate(R.layout.fragment_dashboard, container, false);
-        pieChartContainer = root.findViewById(R.id.pie_chart_container);
-        barChartContainer = root.findViewById(R.id.bar_chart_container);
+        // 加载布局文件
+        View view = inflater.inflate(R.layout.fragment_dashboard, container, false);
 
-        viewModel = new ViewModelProvider(this).get(DashboardViewModel.class);
-        viewModel.getRecords().observe(getViewLifecycleOwner(), records -> {
-            recordList = records;
-            updateChart();
+        // 初始化控件
+        pieChart = view.findViewById(R.id.pie_chart);
+        barChart = view.findViewById(R.id.bar_chart);
+        categoryList = view.findViewById(R.id.category_bar_list);
+        tvToggle = view.findViewById(R.id.tv_toggle);
+        tvFilterMonth = view.findViewById(R.id.tv_filter_month);
+
+        // 设置分类列表的布局管理器
+        categoryList.setLayoutManager(new LinearLayoutManager(getContext()));
+
+        // 初始化数据库帮助类并获取记录
+        DBHelper dbHelper = new DBHelper(requireContext());
+        recordList = dbHelper.getRecords();
+
+        // 设置筛选按钮的点击事件
+        tvFilterMonth.setOnClickListener(v -> {
+            filterThisMonth = !filterThisMonth; // 切换筛选状态
+            tvFilterMonth.setText(filterThisMonth ? "查看全部 ▲" : "仅查看本月 ▼"); // 更新按钮文字
+            refreshCharts(); // 刷新图表
         });
-        loadMockData(); // 加载模拟数据
-        updateChart(); // 更新图表
 
-        return root;
+        // 加载模拟数据（仅用于测试）
+        loadMockData();
+
+        // 刷新图表
+        refreshCharts();
+
+        categoryList.setNestedScrollingEnabled(false);
+
+
+
+        return view;
     }
 
     private void loadMockData() {
-        // 模拟数据
+        // 模拟数据，用于测试
         recordList.add(new RecordModel(1, "2025-06-01", "10:00", 1, "早餐", -15.5));
         recordList.add(new RecordModel(2, "2025-06-02", "12:00", 1, "午餐", -20.0));
         recordList.add(new RecordModel(3, "2025-06-03", "18:00", 2, "晚餐", -30.0));
@@ -66,83 +95,106 @@ public class DashboardFragment extends Fragment {
         // 添加更多模拟数据...
     }
 
-    private void updateChart() {
-        pieChartContainer.removeAllViews();
-        barChartContainer.removeAllViews();
-        showPieChart();
-        showBarChart();
-    }
-    //饼状图
-    private void showPieChart() {
-        PieChart pieChart = new PieChart(requireContext());
-        pieChart.setUsePercentValues(true);
-        pieChart.setDrawHoleEnabled(true);
-        pieChart.setHoleColor(Color.WHITE);
-        pieChart.setHoleRadius(50f);
-        pieChart.setTransparentCircleRadius(60f);
-        pieChart.setCenterText("收支饼图");
-        pieChart.setCenterTextSize(18f);
-        pieChart.setCenterTextColor(Color.BLACK);
-        pieChart.setDrawCenterText(true); // 确保中心文字被绘制
+    private void refreshCharts() {
+        // 根据筛选条件过滤记录
+        List<RecordModel> filtered = new ArrayList<>();
+        Calendar cal = Calendar.getInstance();
+        int curYear = cal.get(Calendar.YEAR);
+        int curMonth = cal.get(Calendar.MONTH);
 
-        float income = 0, expense = 0;
         for (RecordModel r : recordList) {
-            if (r.getAmount() >= 0) income += r.getAmount();
-            else expense += -r.getAmount();
+            if (!filterThisMonth) {
+                filtered.add(r); // 不筛选时直接添加所有记录
+            } else {
+                try {
+                    Calendar c = Calendar.getInstance();
+                    c.setTime(new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).parse(r.getDate()));
+                    if (c.get(Calendar.YEAR) == curYear && c.get(Calendar.MONTH) == curMonth) {
+                        filtered.add(r); // 筛选本月记录
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
         }
 
-        List<PieEntry> entries = new ArrayList<>();
-        if (income > 0) entries.add(new PieEntry(income, "收入"));
-        if (expense > 0) entries.add(new PieEntry(expense, "支出"));
+        // 更新图表数据
+        showPieChart(filtered);
+        showBarChart(filtered);
+        showCategoryBars(filtered);
+    }
 
-        // 自定义颜色
-        List<Integer> colors = new ArrayList<>();
-        colors.add(Color.rgb(255, 99, 132)); // 红色
-        colors.add(Color.rgb(44, 125, 184)); // 蓝色
+    private void showPieChart(List<RecordModel> list) {
+        // 获取分类数据
+        DBHelper dbHelper = new DBHelper(requireContext());
+        List<TypeModel> typeList = dbHelper.getTypes();
+
+        // 建立 typeId => typeName 映射表
+        Map<Integer, String> typeNameMap = new HashMap<>();
+        for (TypeModel t : typeList) {
+            typeNameMap.put(t.getTypeId(), t.getTypeName());
+        }
+
+        // 汇总每个 typeName 的支出金额
+        Map<String, Float> map = new LinkedHashMap<>();
+        for (RecordModel r : list) {
+            if (r.getAmount() < 0) { // 只统计支出
+                String typeName = typeNameMap.get(r.getTypeId());
+                if (typeName == null) typeName = "未知";
+
+                float amt = map.getOrDefault(typeName, 0f);
+                amt += -r.getAmount(); // 累加支出金额
+                map.put(typeName, amt);
+            }
+        }
+
+        // 构造饼图数据
+        List<PieEntry> entries = new ArrayList<>();
+        for (Map.Entry<String, Float> entry : map.entrySet()) {
+            entries.add(new PieEntry(entry.getValue(), entry.getKey()));
+        }
 
         PieDataSet ds = new PieDataSet(entries, "");
-        ds.setColors(colors); // 直接传递颜色列表
-        ds.setValueTextColor(Color.WHITE);
-        ds.setValueTextSize(14f);
-        ds.setDrawValues(true); // 显示数值
+        ds.setColors(Color.rgb(76, 175, 80), Color.rgb(139, 195, 74), Color.rgb(205, 220, 57),
+                Color.rgb(255, 193, 7), Color.rgb(255, 87, 34)); // 设置颜色
+        ds.setValueTextColor(Color.WHITE); // 设置文字颜色
+        ds.setValueTextSize(14f); // 设置文字大小
+        ds.setSliceSpace(3f); // 设置扇区间距
 
         PieData data = new PieData(ds);
         pieChart.setData(data);
-        pieChart.getDescription().setEnabled(false);
-        pieChart.animateY(1000); // 添加动画效果
+        pieChart.setUsePercentValues(true); // 显示百分比
+        pieChart.setHoleRadius(55f); // 设置中心孔半径
+        pieChart.setTransparentCircleRadius(60f); // 设置透明圆环半径
+        pieChart.setCenterText("支出构成"); // 设置中心文字
+        pieChart.setCenterTextSize(18f); // 设置中心文字大小
+        pieChart.getDescription().setEnabled(false); // 禁用描述
+        pieChart.setDrawEntryLabels(false); // 不绘制扇区标签
+        pieChart.setRotationEnabled(false); // 禁用旋转
+        pieChart.animateY(1000); // Y轴动画
 
-        // 添加图例
         Legend legend = pieChart.getLegend();
-        legend.setVerticalAlignment(Legend.LegendVerticalAlignment.TOP);
-        legend.setHorizontalAlignment(Legend.LegendHorizontalAlignment.RIGHT);
-        legend.setOrientation(Legend.LegendOrientation.VERTICAL);
-        legend.setDrawInside(false);
-        legend.setWordWrapEnabled(true);
-        legend.setFormSize(15f);
-        legend.setXEntrySpace(12f);
-        legend.setFormToTextSpace(5f);
-        legend.setTextColor(Color.BLACK);
-
-        pieChartContainer.addView(pieChart);
+        legend.setEnabled(true); // 启用图例
+        legend.setTextColor(Color.DKGRAY); // 设置图例文字颜色
     }
-    //柱状图
-    private void showBarChart() {
-        BarChart barChart = new BarChart(requireContext());
 
-        // 图表基本设置
-        barChart.setDrawBarShadow(false);
-        barChart.setDrawValueAboveBar(true);
-        barChart.getDescription().setEnabled(false);
-        barChart.setPinchZoom(false);
-        barChart.setDrawGridBackground(false);
-        barChart.setExtraBottomOffset(10f);
-        barChart.setNoDataText("暂无支出记录");
+    private void showBarChart(List<RecordModel> list) {
+        // 清空柱状图数据
+        barChart.clear();
+        barChart.setDrawBarShadow(false); // 不绘制阴影
+        barChart.setDrawValueAboveBar(true); // 在柱状图上方绘制值
+        barChart.getDescription().setEnabled(false); // 禁用描述
+        barChart.setPinchZoom(false); // 禁用缩放
+        barChart.setDrawGridBackground(false); // 不绘制网格
+        barChart.setExtraBottomOffset(10f); // 设置底部偏移
+        barChart.setNoDataText("暂无支出记录"); // 设置无数据时的文本
 
-        // X轴准备
+        // 获取当前日期和起始日期（30天前）
         Calendar today = Calendar.getInstance();
         Calendar startDate = (Calendar) today.clone();
-        startDate.add(Calendar.DAY_OF_MONTH, -29); // 最近30天
+        startDate.add(Calendar.DAY_OF_MONTH, -29);
 
+        // 初始化日期列表和支出数组
         List<String> dates = new ArrayList<>();
         float[] expenses = new float[30];
 
@@ -153,13 +205,13 @@ public class DashboardFragment extends Fragment {
             expenses[i] = 0f;
         }
 
+        // 解析记录日期并累加支出
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
-        for (RecordModel r : recordList) {
+        for (RecordModel r : list) {
             try {
                 Date recordDate = dateFormat.parse(r.getDate());
                 Calendar recordCal = Calendar.getInstance();
                 recordCal.setTime(recordDate);
-
                 long diff = (recordCal.getTimeInMillis() - startDate.getTimeInMillis()) / (1000 * 60 * 60 * 24);
                 if (diff >= 0 && diff < 30 && r.getAmount() < 0) {
                     expenses[(int) diff] += -r.getAmount();
@@ -169,65 +221,80 @@ public class DashboardFragment extends Fragment {
             }
         }
 
-        // 构建数据项
+        // 构造柱状图数据
         List<BarEntry> entries = new ArrayList<>();
         for (int i = 0; i < expenses.length; i++) {
             entries.add(new BarEntry(i, expenses[i]));
         }
 
         BarDataSet dataSet = new BarDataSet(entries, "");
-        dataSet.setColor(Color.rgb(84, 203, 168)); // 默认柱子颜色（浅绿色）
-        dataSet.setHighLightAlpha(255); // 高亮透明度
-        dataSet.setHighLightColor(Color.rgb(0, 128, 0)); // 选中柱子的颜色
-        dataSet.setDrawValues(false); // 不显示顶部数值
+        dataSet.setColor(Color.rgb(84, 203, 168)); // 设置柱状图颜色
+        dataSet.setHighLightAlpha(255); // 设置高亮透明度
+        dataSet.setHighLightColor(Color.rgb(0, 128, 0)); // 设置高亮颜色
+        dataSet.setDrawValues(false); // 不绘制值
 
         BarData data = new BarData(dataSet);
-        data.setBarWidth(0.6f);
+        data.setBarWidth(0.6f); // 设置柱状图宽度
 
-        // X轴样式
+        // 设置X轴
         XAxis xAxis = barChart.getXAxis();
-        xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
-        xAxis.setDrawGridLines(false);
-        xAxis.setGranularity(1f);
-        xAxis.setLabelCount(5); // 最多显示 5 个标签（避免太挤）
-        xAxis.setValueFormatter(new IndexAxisValueFormatter(dates));
-        xAxis.setTextColor(Color.GRAY);
+        xAxis.setGranularity(1f); // 设置最小间隔
+        xAxis.setPosition(XAxis.XAxisPosition.BOTTOM); // 设置位置
+        xAxis.setValueFormatter(new IndexAxisValueFormatter(dates)); // 设置值格式化器
+        xAxis.setDrawGridLines(false); // 不绘制网格
+        xAxis.setTextColor(Color.GRAY); // 设置文字颜色
 
-        // Y轴样式
+        // 设置Y轴
         YAxis leftAxis = barChart.getAxisLeft();
-
-        float maxExpense = 0;
-        for (float exp : expenses) {
-            if (exp > maxExpense) maxExpense = exp;
-        }
-        // 设置Y轴范围（增加10%的顶部空间）
-        leftAxis.setAxisMaximum(maxExpense * 1.1f+1);
-
-        leftAxis.setDrawGridLines(false);
-        leftAxis.setAxisMinimum(0f);
-        leftAxis.setTextColor(Color.GRAY);
-
-        barChart.getAxisRight().setEnabled(false); // 右侧Y轴不显示
-
-        // 高亮指示样式（十字线）
-        barChart.setHighlightPerTapEnabled(true);
-        barChart.setHighlightPerDragEnabled(false);
-
+        leftAxis.setDrawGridLines(false); // 不绘制网格
+        leftAxis.setAxisMinimum(0f); // 设置最小值
+        leftAxis.setTextColor(Color.GRAY); // 设置文字颜色
+        barChart.getAxisRight().setEnabled(false); // 禁用右侧Y轴
         // 点击提示框
         barChart.setMarker(new CustomMarkerView(requireContext(), R.layout.custom_marker_view, dates, expenses));
 
-        barChart.setData(data);
-        barChart.setFitBars(true);
-        barChart.animateY(1000);
-        barChart.invalidate();
+        barChart.setFitBars(true); // 自适应柱状图宽度
+        barChart.setData(data); // 设置数据
+        barChart.animateY(1000); // Y轴动画
+        barChart.invalidate(); // 刷新图表
+    }
 
-        barChartContainer.addView(barChart);
+    private void showCategoryBars(List<RecordModel> list) {
+        // 获取分类数据
+        DBHelper dbHelper = new DBHelper(requireContext());
+        List<TypeModel> types = dbHelper.getTypes();
+        Map<Integer, Double> expenseMap = new HashMap<>();
+
+        // 汇总每个分类的支出金额
+        for (RecordModel r : list) {
+            if (r.getAmount() < 0) {
+                int id = r.getTypeId();
+                double amt = expenseMap.getOrDefault(id, 0.0);
+                expenseMap.put(id, amt + (-r.getAmount()));
+            }
+        }
+
+        // 根据支出金额对分类进行排序
+        types.sort((a, b) -> Double.compare(
+                expenseMap.getOrDefault(b.getTypeId(), 0.0),
+                expenseMap.getOrDefault(a.getTypeId(), 0.0)));
+
+        // 初始化适配器
+        adapter = new CategoryBarAdapter(types, expenseMap, type -> {
+            // 点击分类时跳转到分类详情页面
+            Intent intent = new Intent(getContext(), CategoryDetailActivity.class);
+            intent.putExtra("typeId", type.getTypeId());
+            intent.putExtra("typeName", type.getTypeName());
+            startActivity(intent);
+        });
+
+        // 设置分类列表适配器
+        categoryList.setAdapter(adapter);
+
+        // 设置展开/收起按钮点击事件
+        tvToggle.setOnClickListener(v -> {
+            adapter.toggleExpanded(); // 切换展开状态
+            tvToggle.setText(adapter.getItemCount() > 4 ? "收起 ⌃" : "展开更多 ⌄"); // 更新按钮文字
+        });
     }
 }
-
-
-
-
-
-
-
