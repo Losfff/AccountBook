@@ -30,6 +30,10 @@ public class EditRecordActivity extends AppCompatActivity {
         dbHelper = new DBHelper(this);
         recordId = getIntent().getIntExtra("recordId", -1);
 
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().hide();
+        }
+
         // 初始化控件
         etDescription = findViewById(R.id.etDescription);
         etAmount = findViewById(R.id.etAmount);

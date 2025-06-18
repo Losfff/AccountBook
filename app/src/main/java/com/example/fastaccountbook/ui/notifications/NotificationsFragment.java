@@ -18,6 +18,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.example.fastaccountbook.R;
+import com.example.fastaccountbook.ui.otherPages.TypeActivity;
 import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.switchmaterial.SwitchMaterial;
 
@@ -51,8 +52,8 @@ public class NotificationsFragment extends Fragment {
 
         // 分类管理跳转
         editCategoryLayout.setOnClickListener(v -> {
-            //Intent intent = new Intent(getActivity(), CategoryActivity.class); // 你需要创建这个 Activity
-            //startActivity(intent);
+            Intent intent = new Intent(getActivity(), TypeActivity.class); // 你需要创建这个 Activity
+            startActivity(intent);
         });
 
         // 初始化密码保护开关状态
