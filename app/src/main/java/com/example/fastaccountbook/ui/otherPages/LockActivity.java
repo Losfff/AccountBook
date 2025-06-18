@@ -30,6 +30,10 @@ public class LockActivity extends AppCompatActivity {
 
         editPassword.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
 
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().hide();
+        }
+
         btnUnlock.setOnClickListener(v -> {
             String input = editPassword.getText().toString();
             String inputHashed = hashPassword(input);

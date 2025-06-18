@@ -37,6 +37,10 @@ public class AddRecordActivity extends AppCompatActivity {
 
         dbHelper = new DBHelper(this);
 
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().hide();
+        }
+
         ImageButton btnBack = findViewById(R.id.backButton);
         btnBack.setOnClickListener(v -> finish());
 
