@@ -26,4 +26,9 @@ public class TypeModel {
     public void setTypeName(String typeName) {
         this.typeName = typeName;
     }
+
+    @Override
+    public String toString() {
+        return this.typeName; // 直接返回类型名称
+    }
 }

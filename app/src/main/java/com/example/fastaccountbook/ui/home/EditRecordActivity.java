@@ -17,7 +17,7 @@ import java.util.List;
 
 public class EditRecordActivity extends AppCompatActivity {
     private EditText etDescription, etAmount;
-    private String etDate,etTime;
+    private String etDate, etTime;
     private Spinner spType;
     private DBHelper dbHelper;
     private int recordId;
@@ -30,18 +30,13 @@ public class EditRecordActivity extends AppCompatActivity {
         dbHelper = new DBHelper(this);
         recordId = getIntent().getIntExtra("recordId", -1);
 
-        // 初始化控件（只保留需要编辑的字段）
+        // 初始化控件
         etDescription = findViewById(R.id.etDescription);
         etAmount = findViewById(R.id.etAmount);
         spType = findViewById(R.id.spType);
 
-        List<TypeModel> types = dbHelper.getTypes();
-        ArrayAdapter<TypeModel> adapter = new ArrayAdapter<>(
-                this, android.R.layout.simple_spinner_item, types);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spType.setAdapter(adapter);
-        // 设置Spinner适配器
-        setupSpinner();
+        // 设置Spinner适配器（使用与AddRecordActivity相同的数据源）
+        setupTypeSpinner();
 
         // 加载原始记录数据
         loadRecord();
@@ -50,10 +45,16 @@ public class EditRecordActivity extends AppCompatActivity {
         findViewById(R.id.btnSave).setOnClickListener(v -> saveRecord());
     }
 
-    private void setupSpinner() {
+    private void setupTypeSpinner() {
+        // 使用与AddRecordActivity相同的getTypes()方法
         List<TypeModel> types = dbHelper.getTypes();
+
+        // 创建适配器（会自动调用TypeModel的toString()）
         ArrayAdapter<TypeModel> adapter = new ArrayAdapter<>(
-                this, android.R.layout.simple_spinner_item, types);
+                this,
+                android.R.layout.simple_spinner_item,
+                types
+        );
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spType.setAdapter(adapter);
     }
@@ -74,22 +75,40 @@ public class EditRecordActivity extends AppCompatActivity {
                         break;
                     }
                 }
+                break; // 找到记录后退出循环
             }
         }
     }
-    private void saveRecord () {
-        RecordModel updated = new RecordModel();
-        updated.setId(recordId);
-        updated.setDate(etDate);
-        updated.setTime(etTime);
-        updated.setDescription(etDescription.getText().toString());
-        updated.setAmount(Double.parseDouble(etAmount.getText().toString()));
 
-        TypeModel selectedType = (TypeModel) spType.getSelectedItem();
-        updated.setTypeId(selectedType.getTypeId());
+    private void saveRecord() {
+        try {
+            // 输入验证
+            if (etDescription.getText().toString().trim().isEmpty() ||
+                    etAmount.getText().toString().trim().isEmpty()) {
+                Toast.makeText(this, "请填写完整信息", Toast.LENGTH_SHORT).show();
+                return;
+            }
 
-        dbHelper.updateRecord(updated);
-        Toast.makeText(this, "修改成功", Toast.LENGTH_SHORT).show();
-        finish(); // 返回原页面
+            RecordModel updated = new RecordModel();
+            updated.setId(recordId);
+            updated.setDate(etDate);
+            updated.setTime(etTime);
+            updated.setDescription(etDescription.getText().toString());
+
+            // 处理金额
+            TypeModel selectedType = (TypeModel) spType.getSelectedItem();
+            double amount = Double.parseDouble(etAmount.getText().toString());
+            updated.setTypeId(selectedType.getTypeId());
+            updated.setAmount(amount);
+
+            if (dbHelper.updateRecord(updated)) {
+                Toast.makeText(this, "修改成功", Toast.LENGTH_SHORT).show();
+                finish();
+            } else {
+                Toast.makeText(this, "修改失败", Toast.LENGTH_SHORT).show();
+            }
+        } catch (NumberFormatException e) {
+            Toast.makeText(this, "请输入有效的金额", Toast.LENGTH_SHORT).show();
+        }
     }
 }
