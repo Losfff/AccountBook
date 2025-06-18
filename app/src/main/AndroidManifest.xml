@@ -13,6 +13,9 @@
         android:theme="@style/Theme.FastAccountBook"
         tools:targetApi="31">
         <activity
+            android:name=".ui.otherPages.LockActivity"
+            android:exported="false" />
+        <activity
             android:name=".ui.otherPages.AddRecordActivity"
             android:exported="false" />
         <activity
