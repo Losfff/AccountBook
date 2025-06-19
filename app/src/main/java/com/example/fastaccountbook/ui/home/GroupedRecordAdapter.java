@@ -102,7 +102,7 @@ public class GroupedRecordAdapter extends RecyclerView.Adapter<RecyclerView.View
             // 设置账单其他字段
             time.setText(t.getTime());
             description.setText(t.getDescription());
-            amount.setText(String.valueOf(t.getAmount()));
+            amount.setText("￥"+String.valueOf(t.getAmount()));
 
             // 设置点击跳转编辑
             itemView.setOnClickListener(v -> {

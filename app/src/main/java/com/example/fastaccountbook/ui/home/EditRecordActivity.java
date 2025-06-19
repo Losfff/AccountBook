@@ -1,6 +1,7 @@
 package com.example.fastaccountbook.ui.home;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.Spinner;
@@ -87,7 +88,7 @@ public class EditRecordActivity extends AppCompatActivity {
     private void saveRecord() {
         try {
             // 输入验证
-            if (etDescription.getText().toString().trim().isEmpty() ||
+            if (/* etDescription.getText().toString().trim().isEmpty() || */
                     etAmount.getText().toString().trim().isEmpty()) {
                 Toast.makeText(this, "请填写完整信息", Toast.LENGTH_SHORT).show();
                 return;
@@ -97,6 +98,7 @@ public class EditRecordActivity extends AppCompatActivity {
             updated.setId(recordId);
             updated.setDate(etDate);
             updated.setTime(etTime);
+
             updated.setDescription(etDescription.getText().toString());
 
             // 处理金额

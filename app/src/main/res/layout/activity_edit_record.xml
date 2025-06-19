@@ -1,7 +1,8 @@
-
+<?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@android:color/white">
 
     <LinearLayout
         android:orientation="vertical"
@@ -9,39 +10,93 @@
         android:layout_height="wrap_content"
         android:padding="24dp">
 
+        <!-- 类型（Spinner） - 放大显示 -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="交易类型"
+            android:textSize="16sp"
+            android:textColor="@android:color/black"
+            android:layout_marginTop="16dp"/>
 
-
-        <!-- 类型（Spinner） -->
         <Spinner
             android:id="@+id/spType"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp" />
+            android:layout_height="55dp"
+        android:padding="14dp"
+        android:layout_marginTop="8dp"
+        android:background="@android:drawable/editbox_background"
+        android:textSize="17sp"/>
 
-        <!-- 描述 -->
+        <!-- 金额 - 添加￥前缀 -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="交易金额"
+            android:textSize="16sp"
+            android:textColor="@android:color/black"
+            android:layout_marginTop="24dp"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="8dp"
+            android:background="@android:drawable/editbox_background"
+            android:paddingHorizontal="14dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="55dp"
+                android:text="¥"
+                android:textSize="22sp"
+                android:textColor="@android:color/black"
+                android:gravity="center_vertical"/>
+
+            <EditText
+                android:id="@+id/etAmount"
+                android:layout_width="match_parent"
+                android:layout_height="55dp"
+                android:hint="0.00"
+                android:inputType="numberSigned|numberDecimal"
+                android:textSize="18sp"
+                android:padding="14dp"
+                android:background="@null"/>
+        </LinearLayout>
+
+        <!-- 描述 - 添加"备注"标识 -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="交易备注"
+            android:textSize="16sp"
+            android:textColor="@android:color/black"
+            android:layout_marginTop="24dp"/>
+
         <EditText
             android:id="@+id/etDescription"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="描述"
-            android:inputType="text" />
+            android:layout_height="125dp"
+        android:hint="备注内容"
+        android:inputType="textMultiLine"
+        android:textSize="16sp"
+        android:padding="14dp"
+        android:layout_marginTop="8dp"
+        android:gravity="top"
+        android:background="@android:drawable/editbox_background"/>
 
-        <!-- 金额 -->
-        <EditText
-            android:id="@+id/etAmount"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="金额"
-            android:inputType="numberSigned|numberDecimal" />
-
-        <!-- 保存按钮 -->
+        <!-- 保存按钮 - 样式优化 -->
         <Button
             android:id="@+id/btnSave"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="保存"
-            android:layout_marginTop="24dp"
-            android:backgroundTint="#4CAF50"
-            android:textColor="#FFFFFF" />
+            android:layout_height="58dp"
+            android:layout_marginTop="32dp"
+            android:text="保存交易记录"
+            android:textAllCaps="false"
+            android:textColor="@android:color/white"
+            android:textSize="18sp"
+            android:backgroundTint="#000000"
+            android:stateListAnimator="@null"/> <!-- 移除按钮点击阴影效果 -->
+
     </LinearLayout>
 </ScrollView>

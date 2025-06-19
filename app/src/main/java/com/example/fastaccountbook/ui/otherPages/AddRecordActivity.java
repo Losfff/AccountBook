@@ -70,7 +70,7 @@ public class AddRecordActivity extends AppCompatActivity {
             if (isExpense) amount = -Math.abs(amount);
 
             String date = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
-            String time = new SimpleDateFormat("HH:mm:ss", Locale.getDefault()).format(new Date());
+            String time = new SimpleDateFormat("HH:mm", Locale.getDefault()).format(new Date());
 
             RecordModel record = new RecordModel(0, date, time, selectedTypeId, description, amount);
             if (dbHelper.insertRecord(record)) {
@@ -93,29 +93,55 @@ public class AddRecordActivity extends AppCompatActivity {
     }
 
     private void setupTypeButtons() {
+        typeGrid.removeAllViews(); // 确保不重复添加
         List<TypeModel> types = dbHelper.getTypes();
+
+        int columnCount = 4;
+        int totalColumns = columnCount;
+        typeGrid.setColumnCount(totalColumns);
+
         for (TypeModel type : types) {
             Button btn = new Button(this);
             btn.setText(type.getTypeName());
             btn.setBackground(getDrawable(R.drawable.circle_button));
+            btn.setTextColor(Color.BLACK);
+            btn.setAllCaps(false);
+
+            GridLayout.Spec rowSpec = GridLayout.spec(GridLayout.UNDEFINED, 1);
+            GridLayout.Spec colSpec = GridLayout.spec(GridLayout.UNDEFINED, 1f);
+
+            GridLayout.LayoutParams params = new GridLayout.LayoutParams(rowSpec, colSpec);
+            params.width = 0;  // 关键：宽度设置为 0
+            params.height = dpToPx(60);
+            params.setMargins(dpToPx(8), dpToPx(8), dpToPx(8), dpToPx(8));
+
+            btn.setLayoutParams(params);
+
             btn.setOnClickListener(v -> {
                 selectedTypeId = type.getTypeId();
-                highlightSelectedType(btn);
+                highlightSelectedType(btn, typeGrid);
             });
 
-            GridLayout.LayoutParams params = new GridLayout.LayoutParams();
-            params.setMargins(16, 16, 16, 16);
-            btn.setLayoutParams(params);
             typeGrid.addView(btn);
         }
     }
 
-    private void highlightSelectedType(Button selectedBtn) {
-        for (int i = 0; i < typeGrid.getChildCount(); i++) {
-            View child = typeGrid.getChildAt(i);
-            child.setBackground(getDrawable(R.drawable.circle_button));
+
+    private void highlightSelectedType(Button selectedBtn, GridLayout grid) {
+        for (int i = 0; i < grid.getChildCount(); i++) {
+            View child = grid.getChildAt(i);
+            if (child instanceof Button) {
+                child.setBackground(getDrawable(R.drawable.circle_button));
+                ((Button) child).setTextColor(Color.BLACK);
+            }
         }
         selectedBtn.setBackground(getDrawable(R.drawable.circle_button_selected));
+        selectedBtn.setTextColor(Color.WHITE);
+    }
+
+    // 工具函数：dp 转 px
+    private int dpToPx(int dp) {
+        return (int) (dp * getResources().getDisplayMetrics().density + 0.5f);
     }
 }
 
